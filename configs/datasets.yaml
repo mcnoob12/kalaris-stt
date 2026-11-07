@@ -1,0 +1,130 @@
+# Dataset registry. Nothing is used for training until `status: confirmed`.
+#
+# status:
+#   confirmed       A human read the dataset's own license and approved this use
+#   listed          License is tagged on the source page; not yet reviewed by a human
+#   secondary       License known only from a secondary source
+#   excluded        Do not use
+#
+# access: open | gated (a human must accept terms) | unknown
+
+datasets:
+  # Wave 1: Hindi
+  - name: IndicVoices
+    languages: [hi, multi]
+    source: https://huggingface.co/datasets/ai4bharat/IndicVoices
+    license: CC-BY-4.0
+    status: listed
+    access: gated
+    use: [train, dev]
+  - name: Kathbath
+    languages: [hi, multi]
+    source: https://huggingface.co/datasets/ai4bharat/Kathbath
+    license: CC-BY-4.0
+    status: listed
+    access: gated
+    use: [train, dev]
+  - name: Shrutilipi
+    languages: [hi, multi]
+    source: https://huggingface.co/datasets/ai4bharat/Shrutilipi
+    license: CC-BY-4.0
+    status: listed
+    access: gated
+    use: [train]
+    notes: All India Radio broadcast speech, so check for speaker diversity.
+  - name: Vistaar benchmark sets
+    languages: [hi, multi]
+    source: https://arxiv.org/abs/2305.15386
+    license: unknown
+    status: secondary
+    access: unknown
+    use: [test]
+    notes: Inherits terms from each underlying corpus. Check them set by set.
+  - name: FLEURS
+    languages: [hi, en, multi]
+    source: https://huggingface.co/datasets/google/fleurs
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [test]
+    notes: Phase 0 Hindi baseline. Small and read aloud, so it can't stand in for conversational Hindi.
+  - name: Common Voice 17.0
+    languages: [hi, en, multi]
+    source: https://huggingface.co/datasets/mozilla-foundation/common_voice_17_0
+    license: CC0-1.0
+    status: secondary
+    access: unknown
+    use: [train]
+    notes: Crowdsourced, so transcripts need auditing.
+
+  # Wave 1: Hinglish. No usable set has been confirmed yet. This is the top data risk.
+  - name: HiACC
+    languages: [hinglish]
+    source: unknown
+    license: unknown
+    status: secondary
+    access: unknown
+    use: [train, dev, test]
+    notes: Found only through community model pages. Find the original source first.
+  - name: MUCS-2021
+    languages: [hinglish]
+    source: unknown
+    license: unknown
+    status: secondary
+    access: unknown
+    use: [train, dev, test]
+    notes: Found only through community model pages. Find the original source first.
+
+  # Wave 1: English
+  - name: LibriSpeech test-clean
+    languages: [en]
+    source: https://www.openslr.org/12
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [test]
+
+  # Excluded
+  - name: Krutrim IndicST
+    languages: [multi]
+    source: https://huggingface.co/datasets/krutrim-ai-labs/IndicST
+    license: conflicting
+    status: excluded
+    access: unknown
+    use: []
+    notes: One page gives the Krutrim Community License and the dataset card says TBD.
+
+models:
+  - name: Parakeet TDT 0.6B v3
+    source: https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [base, baseline]
+  - name: IndicConformer 600M
+    source: https://huggingface.co/ai4bharat/indic-conformer-600m-multilingual
+    license: MIT
+    status: listed
+    access: gated
+    use: [base, baseline]
+  - name: IndicConformer 600M ONNX repack (CTC only)
+    source: https://huggingface.co/christopherthompson81/indicconformer-600m-onnx
+    license: MIT
+    status: listed
+    access: open
+    use: [baseline]
+    notes: Third-party repack. Use it for early scores and the official model for decisions.
+  - name: Whisper large-v3-turbo (MLX)
+    source: https://huggingface.co/mlx-community/whisper-large-v3-turbo
+    license: unknown
+    status: listed
+    access: open
+    use: [baseline]
+    notes: The MLX repo has no license tag. Upstream OpenAI Whisper is MIT.
+  - name: Underdog Bark 3.0 family
+    source: https://huggingface.co/ConwayResearch/Underdog-Bark-3.0
+    license: CC-BY-NC-4.0
+    status: excluded
+    access: open
+    use: []
+    notes: Non-commercial. Compare against published numbers until internal benchmarking is cleared.

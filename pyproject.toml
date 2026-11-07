@@ -1,0 +1,31 @@
+[project]
+name = "kalaris-stt"
+version = "0.1.0"
+description = "Evaluation harness and agent skills for the Kalaris Labs STT model"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "numpy>=1.26",
+    "pyyaml>=6",
+    "soundfile>=0.12",
+    "whisper-normalizer>=0.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+mlx = ["parakeet-mlx>=0.4", "mlx-whisper>=0.4"]
+onnx = ["sherpa-onnx>=1.12", "onnxruntime>=1.18"]
+data = ["pyarrow>=15"]
+env = ["openenv-core>=0.2"]
+
+[project.scripts]
+stt-eval = "stt_eval.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["stt_eval*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
