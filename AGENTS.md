@@ -41,5 +41,6 @@ uv pip install -e '.[dev,mlx,env,onnx,data]'
 - `manifests/`: clip lists (JSONL); `data/`, `models/` and `runs/` are gitignored
 - `configs/datasets.yaml`: dataset registry with license status
 - `envs/quant_env/`: OpenEnv quantization environment (its evaluator is a stub for now)
+- `docs/`: project status, decisions, evaluation sets and harness guide
 - `reports/`: reports, starting with `baseline.md`
 - `.agents/skills/`: procedures for specific jobs. Read the matching skill first.

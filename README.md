@@ -4,10 +4,16 @@ Evaluation harness, agent skills and search environment for the Kalaris Labs spe
 
 No model has been trained here yet. This is Phase 0: it measures the baselines future models must beat.
 
-- [Baseline results](reports/baseline.md)
-- [Agent rules](AGENTS.md)
-- [Dataset and model registry](configs/datasets.yaml)
-- [Strategy document](https://claude.ai/artifact/6XuzBJBNuZJofz7BxF1aC9)
+| Read this | For |
+|---|---|
+| [Project status](docs/status.md) | What's done, known issues, and what needs a person |
+| [Decisions](docs/decisions.md) | What we chose, why, and what would change it |
+| [Evaluation sets](docs/evaluation.md) | Where evals come from and what they can't prove |
+| [Evaluation harness](docs/harness.md) | How scoring, benchmarks, skills and the environment work |
+| [Baseline results](reports/baseline.md) | Measured scores |
+| [Agent rules](AGENTS.md) | Hard rules for agents |
+| [Dataset and model registry](configs/datasets.yaml) | Sources and license status |
+| [Strategy document](https://claude.ai/artifact/6XuzBJBNuZJofz7BxF1aC9) | The full plan, with sources |
 
 ## Setup
 
