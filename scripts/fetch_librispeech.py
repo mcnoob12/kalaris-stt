@@ -10,7 +10,7 @@ from pathlib import Path
 
 import soundfile
 
-from stt_eval.manifest import write_jsonl
+from stt_eval.manifest import relative_to_repo, write_jsonl
 
 # An OpenSLR mirror, about 12x faster than the main site when tested. The checksum
 # comes from https://www.openslr.org/resources/12/md5sum.txt.
@@ -57,7 +57,7 @@ def main() -> None:
             path = transcript.parent / f"{clip_id}.flac"
             rows.append({
                 "id": f"librispeech-{clip_id}",
-                "audio_filepath": str(path),
+                "audio_filepath": relative_to_repo(path),
                 "text": text,
                 "duration": soundfile.info(path).duration,
                 "language": "en",

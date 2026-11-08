@@ -2,12 +2,22 @@
 
 Evaluation harness, agent skills and search environment for the Kalaris Labs speech-to-text model. Wave 1 covers Hindi, Hinglish and English.
 
-No model has been trained here yet. This is Phase 0: it measures the baselines future models must beat.
+No production model has been trained here yet. Phase 0 measures the baselines future models must beat, and [`training/`](training/README.md) holds the fine-tuning stack.
 
-- [Baseline results](reports/baseline.md)
-- [Agent rules](AGENTS.md)
-- [Dataset and model registry](configs/datasets.yaml)
-- [Strategy document](https://claude.ai/artifact/6XuzBJBNuZJofz7BxF1aC9)
+| Read this | For |
+|---|---|
+| [Project status](docs/status.md) | What's done, known issues, and what needs a person |
+| [Decisions](docs/decisions.md) | What we chose, why, and what would change it |
+| [Evaluation sets](docs/evaluation.md) | Where evals come from and what they can't prove |
+| [Evaluation harness](docs/harness.md) | How scoring, benchmarks, skills and the environment work |
+| [Baseline results](reports/baseline.md) | Measured scores |
+| [Leaderboard snapshot](reports/leaderboard_snapshot.md) | Current public standings |
+| [Can we be SOTA?](docs/sota.md) | Where we can realistically win |
+| [Training guide](training/README.md) | From Hugging Face data to a fine-tuned model |
+| [Data and tools used](docs/data-sources.md) | Every dataset, model, tool and service, and why |
+| [Agent rules](AGENTS.md) | Hard rules for agents |
+| [Dataset and model registry](configs/datasets.yaml) | Sources and license status |
+| [Strategy document](https://claude.ai/artifact/6XuzBJBNuZJofz7BxF1aC9) | The full plan, with sources |
 
 ## Setup
 
@@ -19,7 +29,7 @@ uv pip install -e '.[dev,mlx,env,onnx,data]'
 
 ## Reproduce the baselines
 
-This downloads about 8 GB, and stops if free disk space falls below 10 GB. Finished runs are skipped when it's re-run.
+This downloads about 9 GB, and stops if free disk space falls below 10 GB. Finished runs are skipped when it's re-run.
 
 ```bash
 ./scripts/run_baselines.sh

@@ -44,17 +44,29 @@ if [ ! -d "models/$SHERPA" ]; then
   rm "models/$SHERPA.tar.bz2"
 fi
 
+# ONNX Runtime refuses external weights behind a cache symlink, so this model
+# needs real files in its own folder.
+INDIC=models/indicconformer-600m-onnx
+if [ ! -f "$INDIC/encoder-model.onnx.data" ]; then
+  check_disk
+  .venv/bin/hf download christopherthompson81/indicconformer-600m-onnx --local-dir "$INDIC"
+fi
+
+[ -f manifests/hi_monsoon.jsonl ] || "$PY" scripts/fetch_benchmark.py hi_monsoon
+
 EN=manifests/librispeech_test_clean.jsonl
 HI=manifests/fleurs_hi_test.jsonl
+MONSOON=manifests/hi_monsoon.jsonl
 PARAKEET=mlx-community/parakeet-tdt-0.6b-v3
 WHISPER=mlx-community/whisper-large-v3-turbo
-INDIC=christopherthompson81/indicconformer-600m-onnx
 
-run parakeet_mlx_en     parakeet-mlx           "$PARAKEET"      "$EN" en
-run parakeet_onnx_en    sherpa-onnx-transducer "models/$SHERPA" "$EN" en
-run parakeet_mlx_hi     parakeet-mlx           "$PARAKEET"      "$HI" hi
-run indicconformer_hi   indicconformer-onnx    "$INDIC"         "$HI" hi
-run whisper_turbo_hi    whisper-mlx            "$WHISPER"       "$HI" hi
-run whisper_turbo_en    whisper-mlx            "$WHISPER"       "$EN" en
+run parakeet_mlx_en       parakeet-mlx           "$PARAKEET"      "$EN"      en
+run parakeet_onnx_en      sherpa-onnx-transducer "models/$SHERPA" "$EN"      en
+run parakeet_mlx_hi       parakeet-mlx           "$PARAKEET"      "$HI"      hi
+run indicconformer_monsoon indicconformer-onnx   "$INDIC"         "$MONSOON" hi
+run whisper_turbo_monsoon whisper-mlx            "$WHISPER"       "$MONSOON" hi
+run indicconformer_hi     indicconformer-onnx    "$INDIC"         "$HI"      hi
+run whisper_turbo_hi      whisper-mlx            "$WHISPER"       "$HI"      hi
+run whisper_turbo_en      whisper-mlx            "$WHISPER"       "$EN"      en
 
 echo "== all baselines finished $(date +%H:%M:%S)"

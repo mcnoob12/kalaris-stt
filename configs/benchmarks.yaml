@@ -1,0 +1,78 @@
+# Benchmarks we report against. Selection follows the Hugging Face Open ASR
+# Leaderboard, so our numbers can be compared with its table.
+# Source of track choices: https://github.com/huggingface/open_asr_leaderboard
+#
+# Never train on or tune against anything here. `stt-eval worst` refuses these.
+
+primary:
+  hi_monsoon:
+    track: Multilingual tab, Hindi column
+    repo: VoiceArena/MonsoonASR-Open-ASR-leaderboard-hi-IN
+    config: default
+    split: test
+    lattice_column: lattice
+    speaker_column: speaker_id
+    language: hi
+    metric: oiwer
+    license: CC-BY-4.0
+    access: open
+    notes: Conversational phone audio; 1.33 hours public and 4.47 hours private.
+
+  en_monsoon:
+    track: Main tab, part of the average
+    repo: VoiceArena/MonsoonASR-Open-ASR-leaderboard-en-IN
+    config: default
+    split: test
+    speaker_column: speaker_id
+    language: en
+    metric: wer
+    license: CC-BY-4.0
+    access: open
+    notes: Indian English; 5.62 hours public. Check its text column on first fetch.
+
+# The other main-tab sets. Fetch them when disk allows.
+english_average:
+  - {name: ami_cleaned, repo: hf-audio/open-asr-leaderboard, config: ami_cleaned, split: test}
+  - {name: gigaspeech_cleaned, repo: hf-audio/open-asr-leaderboard, config: gigaspeech_cleaned, split: test}
+  - {name: spgispeech, repo: hf-audio/open-asr-leaderboard, config: spgispeech, split: test}
+  - {name: voxpopuli_cleaned_aa, repo: hf-audio/open-asr-leaderboard, config: voxpopuli_cleaned_aa, split: test}
+  - {name: urgent2024, repo: hf-audio/open-asr-leaderboard, config: urgent2024_clean, split: test}
+  - {name: earnings22_chunked, repo: ArtificialAnalysis/Earnings22-Cleaned-AA-chunked, config: default, split: test}
+
+secondary:
+  librispeech_clean:
+    repo: hf-audio/open-asr-leaderboard
+    config: librispeech
+    split: test.clean
+    language: en
+    metric: wer
+    license: CC-BY-4.0
+    access: open
+    notes: Benchmark-fitting check on the leaderboard, not in its current average.
+  fleurs_hi:
+    repo: google/fleurs
+    config: hi_in
+    split: test
+    language: hi
+    metric: wer
+    license: CC-BY-4.0
+    access: open
+    notes: Read speech, and it has no speaker IDs.
+  lahaja:
+    repo: ai4bharat/Lahaja
+    split: test
+    language: hi
+    metric: wer
+    license: CC-BY-4.0 in the card text, MIT in the tag
+    access: gated
+    notes: 12.5 hours, 132 speakers, multi-accent. Best extra Hindi check.
+  hiacc:
+    repo: https://doi.org/10.5281/zenodo.15551669
+    language: hinglish
+    metric: wer
+    license: CC-BY-NC-4.0
+    access: open
+    notes: Not on Hugging Face. Real code-switched speech, evaluation and research use only.
+
+# Published results are snapshotted by scripts/snapshot_leaderboard.py into
+# reports/leaderboard_snapshot.md.

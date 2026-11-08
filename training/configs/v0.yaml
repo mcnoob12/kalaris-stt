@@ -1,0 +1,102 @@
+# First Kalaris STT model: Hindi, Hinglish and English, from open data only.
+# Licenses were approved by the owner on 2026-11-08 (see configs/datasets.yaml).
+# Runs on a free Kaggle GPU through training/kaggle/kalaris_v0.ipynb.
+#
+# This is a starting model to prove the full pipeline on real data. It has
+# little pure Hindi (about 7 hours), so expect it to be strongest on Hinglish.
+name: v0
+sources:
+  - name: mucs_hinglish
+    registry: MUCS 2021 Hinglish
+    repo: dianavdavidson/MUCS-Hinglish
+    config: default
+    split: train
+    text_column: transcript
+    speaker_column: speaker_id     # A tutorial ID, used as the closest speaker proxy
+    language: hinglish
+    license: CC-BY-SA-4.0
+    dev_fraction: 0.03
+  - name: fleurs_hi
+    registry: FLEURS
+    repo: google/fleurs
+    config: hi_in
+    split: train
+    text_column: transcription     # The normalized column: lower case, no punctuation
+    speaker_column: speaker_id
+    language: hi
+    license: CC-BY-4.0
+    repeat: 2                      # Oversampled, because pure Hindi is scarce here
+  - name: fleurs_hi_dev
+    registry: FLEURS
+    repo: google/fleurs
+    config: hi_in
+    split: validation
+    text_column: transcription
+    language: hi
+    license: CC-BY-4.0
+    role: dev
+  - name: librispeech_en
+    registry: LibriSpeech train
+    repo: openslr/librispeech_asr
+    config: clean
+    split: train.100
+    text_column: text
+    speaker_column: speaker_id
+    language: en
+    license: CC-BY-4.0
+    lowercase: true
+    max_hours: 50                  # English keeps its skill without crowding out Hindi
+  - name: librispeech_en_dev
+    registry: LibriSpeech train
+    repo: openslr/librispeech_asr
+    config: clean
+    split: validation
+    text_column: text
+    language: en
+    license: CC-BY-4.0
+    lowercase: true
+    role: dev
+    max_hours: 0.5
+
+limits:
+  min_seconds: 0.5
+  max_seconds: 20.0
+  min_chars_per_second: 2
+  max_chars_per_second: 40
+
+base_model: nvidia/parakeet-tdt-0.6b-v3
+tokenizer_dir: /kaggle/temp/tokenizers/v0
+train_manifest: /kaggle/temp/training/v0/train.json
+dev_manifest: /kaggle/temp/training/v0/dev.json
+output_dir: /kaggle/working/v0
+accelerator: gpu
+precision: 16-mixed      # Kaggle's T4 and P100 have no bf16
+seed: 0
+spec_augment: true
+
+data:
+  batch_size: 8
+  num_workers: 4
+  max_duration: 20.0
+  accumulate: 4          # 32 clips per optimizer step
+
+collapse_guard:
+  wer_limit: 100
+  patience: 4
+
+stages:
+  head:
+    lr: 0.0005
+    max_steps: 3000
+    warmup_steps: 300
+    checkpoint_every: 500
+    validate_every_epochs: 1
+    log_every: 50
+  full:
+    lr: 0.00005
+    layer_decay: 0.95
+    max_steps: 20000
+    warmup_steps: 300
+    checkpoint_every: 500
+    validate_every_epochs: 1
+    log_every: 50

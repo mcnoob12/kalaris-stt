@@ -44,9 +44,10 @@ datasets:
     languages: [hi, en, multi]
     source: https://huggingface.co/datasets/google/fleurs
     license: CC-BY-4.0
-    status: listed
+    status: confirmed
+    confirmed: Approved by the owner for training on 2026-11-08.
     access: open
-    use: [test]
+    use: [train, dev, test]
     notes: Phase 0 Hindi baseline. Small and read aloud, so it can't stand in for conversational Hindi.
   - name: Common Voice 17.0
     languages: [hi, en, multi]
@@ -57,23 +58,53 @@ datasets:
     use: [train]
     notes: Crowdsourced, so transcripts need auditing.
 
-  # Wave 1: Hinglish. No usable set has been confirmed yet. This is the top data risk.
+  # Wave 1: Hinglish. No data cleared for commercial training has been found yet.
+  # This is the top data risk.
   - name: HiACC
     languages: [hinglish]
-    source: unknown
-    license: unknown
-    status: secondary
-    access: unknown
-    use: [train, dev, test]
-    notes: Found only through community model pages. Find the original source first.
-  - name: MUCS-2021
+    source: https://doi.org/10.5281/zenodo.15551669
+    license: CC-BY-NC-4.0
+    status: listed
+    access: open
+    use: [test]
+    notes: Real code-switched speech, 5.24 hours and 44 speakers. Non-commercial, so evaluation only.
+  - name: sonexis hinglish conversations
     languages: [hinglish]
-    source: unknown
-    license: unknown
+    source: https://huggingface.co/datasets/sonexis-ai/hinglish-code-switched-conversations-v1
+    license: CC-BY-NC-4.0
+    status: excluded
+    access: gated
+    use: []
+    notes: Non-commercial sample with undisclosed provenance.
+  - name: addyo07 noisy hinglish
+    languages: [hinglish]
+    source: https://huggingface.co/datasets/addyo07/noisy-hinglish-asr
+    license: Apache-2.0 on the tag
     status: secondary
     access: unknown
-    use: [train, dev, test]
-    notes: Found only through community model pages. Find the original source first.
+    use: []
+    notes: Provenance unknown. Don't use it until its sources are traced.
+  - name: MUCS 2021 Hinglish
+    languages: [hinglish]
+    source: https://www.openslr.org/104/
+    mirror: https://huggingface.co/datasets/dianavdavidson/MUCS-Hinglish
+    license: CC-BY-SA-4.0
+    status: confirmed
+    confirmed: Approved by the owner for training on 2026-11-08. Share-alike terms recorded for a later legal check.
+    access: open
+    use: [train, dev]
+    notes: >-
+      About 90 hours of technical spoken tutorials mixing Hindi and English (OpenSLR SLR104).
+      The Hugging Face mirror is tagged CC BY 4.0, but the original is CC BY-SA 4.0, which governs.
+      Its speaker_id is a tutorial ID, not a confirmed person.
+  - name: Hinglish training data
+    languages: [hinglish]
+    source: TBD
+    license: TBD
+    status: secondary
+    access: unknown
+    use: [train]
+    notes: Placeholder. Likely needs licensing or our own collection.
 
   # Wave 1: English
   - name: LibriSpeech test-clean
@@ -84,7 +115,73 @@ datasets:
     access: open
     use: [test]
 
+  - name: LibriSpeech train
+    languages: [en]
+    source: https://huggingface.co/datasets/openslr/librispeech_asr
+    license: CC-BY-4.0
+    status: confirmed
+    confirmed: Approved by the owner for training on 2026-11-08.
+    access: open
+    use: [train, dev]
+
+  # Benchmarks. See configs/benchmarks.yaml. Never train on these.
+  - name: Monsoon hi-IN
+    languages: [hi]
+    source: https://huggingface.co/datasets/VoiceArena/MonsoonASR-Open-ASR-leaderboard-hi-IN
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [test]
+  - name: Monsoon en-IN
+    languages: [en]
+    source: https://huggingface.co/datasets/VoiceArena/MonsoonASR-Open-ASR-leaderboard-en-IN
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [test]
+  - name: Lahaja
+    languages: [hi]
+    source: https://huggingface.co/datasets/ai4bharat/Lahaja
+    license: CC-BY-4.0 in the card text, MIT in the tag
+    status: secondary
+    access: gated
+    use: [test]
+    notes: Multi-accent Hindi, 12.5 hours and 132 speakers.
+  - name: Vaani
+    languages: [hi, multi]
+    source: https://huggingface.co/datasets/ARTPARK-IISc/Vaani
+    license: CC-BY-4.0
+    status: listed
+    access: gated
+    use: [train]
+    notes: Not yet audited. Check how much of it has transcripts.
+
   # Excluded
+  - name: nvidia Granary-v2
+    languages: [multi]
+    source: https://huggingface.co/datasets/nvidia/Granary-v2
+    license: OpenMDW-1.1 labels; source audio keeps its own license
+    status: listed
+    access: open
+    use: []
+    notes: Labels only. Its Hindi comes from Common Voice 26 and FLEURS, so it adds cleaner labels, not new audio.
+  - name: aman-hf indic_asr
+    languages: [hi]
+    source: https://huggingface.co/datasets/aman-hf/indic_asr
+    license: CC-BY-4.0 on the tag
+    status: excluded
+    access: open
+    use: []
+    notes: Aggregates about 10,000 hours with no named sources, so upstream licenses can't be checked.
+  - name: Kaggle Hindi speech datasets
+    languages: [hi]
+    source: https://www.kaggle.com/datasets
+    license: mixed
+    status: excluded
+    access: open
+    use: []
+    notes: Searched 2026-11-08. Results were non-commercial, re-uploads without provenance, or text only.
+
   - name: Krutrim IndicST
     languages: [multi]
     source: https://huggingface.co/datasets/krutrim-ai-labs/IndicST

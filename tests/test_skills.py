@@ -12,7 +12,8 @@ EXPECTED = {
     "asr-data-audit", "license-provenance", "indic-text-normalize", "speaker-disjoint-split",
     "nemo-transducer-finetune", "rl-sequence-finetune", "experiment-tracking",
     "asr-eval-wer", "asr-error-analysis",
-    "quant-search", "edge-export", "device-bench",
+    "quant-search", "edge-export", "device-bench", "autoresearch",
+    "dataset-sourcing", "kaggle-gpu-training",
 }
 
 

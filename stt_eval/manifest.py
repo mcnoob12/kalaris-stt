@@ -2,6 +2,8 @@
 
 Required fields: id, audio_filepath, text, duration, language, dataset, split, license.
 speaker is required on training and dev sets, and strongly preferred elsewhere.
+lattice is optional: a list of slots, each listing accepted spellings. When it's
+present, scoring uses the official OIWER scorer instead of plain WER.
 """
 
 from __future__ import annotations
@@ -26,8 +28,20 @@ def write_jsonl(path: str | Path, rows: Iterable[dict]) -> None:
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def relative_to_repo(path: str | Path) -> str:
+    """Path to store in a manifest, so it works on any machine with this repo."""
+    return Path(path).resolve().relative_to(REPO_ROOT).as_posix()
+
+
 def read_manifest(path: str | Path) -> list[dict]:
+    """Read and validate a manifest. Relative audio paths resolve against the repo."""
     rows = read_jsonl(path)
+    for row in rows:
+        if "audio_filepath" in row and not Path(row["audio_filepath"]).is_absolute():
+            row["audio_filepath"] = str(REPO_ROOT / row["audio_filepath"])
     seen: set[str] = set()
     for number, row in enumerate(rows, start=1):
         missing = [field for field in REQUIRED_FIELDS if field not in row]

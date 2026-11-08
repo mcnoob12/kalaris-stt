@@ -15,14 +15,15 @@ We are building an on-device speech-to-text model. Wave 1 covers Hindi, Hinglish
 - A model beats another only if `stt-eval compare` gives a 95% CI that excludes zero.
 - Label every number as measured, vendor-reported or estimated.
 - Report the machine, normalization options, clip count and commit with every score.
-- Compare a new model only with baselines rescored by this repo, because published numbers use different scorers.
+- Compare a new model only with baselines rescored by this repo, or with Open ASR Leaderboard numbers on the same set and metric.
+- Never train or tune on anything in `configs/benchmarks.yaml`.
 
 ## Machines
 
 | Machine | Use for | Don't use for |
 |---|---|---|
-| M1 Pro and M4, 16 GB | Evaluation, Core ML and MLX export, quantization search | Training a 0.6B model |
-| i7 with RTX 3050 Ti 4 GB | Smoke tests on Parakeet 110M, ONNX CPU benchmarks | Training a 0.6B model |
+| M1 Pro and M4, 16 GB | Evaluation, Core ML and MLX export, quantization search, RNNT smoke tests | Anything needing the TDT loss, which requires CUDA |
+| i7 with RTX 3050 Ti 4 GB | TDT smoke tests on Parakeet 110M, ONNX CPU benchmarks | Training a 0.6B model |
 | Kaggle free tier | Bake-offs that resume from checkpoints | Flagship runs |
 | Rented RTX 4090 or A100 | Flagship training (human approval needed) | |
 
@@ -38,8 +39,13 @@ uv pip install -e '.[dev,mlx,env,onnx,data]'
 ## Layout
 
 - `stt_eval/`: scoring, normalization, leakage checks, benchmarks and backends
-- `manifests/`: clip lists (JSONL); `data/`, `models/` and `runs/` are gitignored
-- `configs/datasets.yaml`: dataset registry with license status
+- `manifests/`: benchmark clip lists (JSONL); `data/`, `models/` and `runs/` are gitignored
+- `configs/datasets.yaml`: dataset and model registry with license status
+- `configs/benchmarks.yaml`: what we report against, following the Open ASR Leaderboard
+- `training/`: data preparation, tokenizer and fine-tuning. Read `training/README.md` first.
+- `autoresearch/`: agent loop for tuning experiments (`program.md`, `experiment.yaml`, `trial.py`)
+- `training/kaggle/`: notebook builder for free Kaggle GPU training
 - `envs/quant_env/`: OpenEnv quantization environment (its evaluator is a stub for now)
+- `docs/`: project status, decisions, evaluation sets and harness guide
 - `reports/`: reports, starting with `baseline.md`
 - `.agents/skills/`: procedures for specific jobs. Read the matching skill first.

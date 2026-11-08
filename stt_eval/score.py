@@ -71,6 +71,20 @@ def char_errors(reference: str, hypothesis: str) -> Errors:
     return align(list(reference.replace(" ", "")), list(hypothesis.replace(" ", "")))
 
 
+def oiwer_errors(hypothesis: str, lattice: Sequence[Sequence[str]], language: str = "hindi") -> Errors:
+    """Orthographically-informed word errors, using the leaderboard's own scorer.
+
+    The scorer normalizes text itself, so pass raw model output. Any spelling in
+    a slot counts as correct, and the corpus rate is total edits over total
+    reference words.
+    """
+    from voi_oiwer import oiwer
+
+    result = oiwer(hypothesis=hypothesis, reference_lists=[list(slot) for slot in lattice], input_language=language)
+    insertions, deletions, substitutions = result[4]
+    return Errors(substitutions, insertions, deletions, result[5])
+
+
 def total(errors: Sequence[Errors]) -> Errors:
     result = Errors()
     for item in errors:
@@ -111,23 +125,28 @@ def paired_bootstrap(
     resamples: int = 2000,
     confidence: float = 0.95,
     seed: int = 0,
+    lattice: bool = False,
 ) -> BootstrapResult:
     """Confidence interval for WER(B) - WER(A) on the same clips.
 
     This is the repo's promotion gate. Pass speaker IDs as `groups` whenever
     they exist: clips from one speaker aren't independent, and resampling single
     clips then gives intervals that are too narrow.
+
+    Set `lattice` for OIWER. Each model is measured against the spellings it
+    matched, so its reference length can legitimately differ on the same clip.
     """
     if len(errors_a) != len(errors_b):
         raise ValueError("Paired bootstrap needs the same clips for both models")
     if not errors_a:
         raise ValueError("Paired bootstrap needs at least one clip")
-    if any(a.reference_length != b.reference_length for a, b in zip(errors_a, errors_b)):
+    if not lattice and any(a.reference_length != b.reference_length for a, b in zip(errors_a, errors_b)):
         raise ValueError("Clips are misaligned: reference lengths differ")
 
     edits_a = np.array([e.edits for e in errors_a], dtype=np.int64)
     edits_b = np.array([e.edits for e in errors_b], dtype=np.int64)
-    lengths = np.array([e.reference_length for e in errors_a], dtype=np.int64)
+    lengths_a = np.array([e.reference_length for e in errors_a], dtype=np.int64)
+    lengths_b = np.array([e.reference_length for e in errors_b], dtype=np.int64)
 
     if groups is not None:
         if len(groups) != len(errors_a):
@@ -135,22 +154,22 @@ def paired_bootstrap(
         names, inverse = np.unique(np.array(groups), return_inverse=True)
         edits_a = np.bincount(inverse, weights=edits_a, minlength=len(names))
         edits_b = np.bincount(inverse, weights=edits_b, minlength=len(names))
-        lengths = np.bincount(inverse, weights=lengths, minlength=len(names))
+        lengths_a = np.bincount(inverse, weights=lengths_a, minlength=len(names))
+        lengths_b = np.bincount(inverse, weights=lengths_b, minlength=len(names))
 
     rng = np.random.default_rng(seed)
-    picks = rng.integers(0, len(lengths), size=(resamples, len(lengths)))
-    words = lengths[picks].sum(axis=1)
-    usable = words > 0
-    diffs = (
-        100.0 * (edits_b[picks].sum(axis=1)[usable] - edits_a[picks].sum(axis=1)[usable])
-        / words[usable]
+    picks = rng.integers(0, len(lengths_a), size=(resamples, len(lengths_a)))
+    words_a, words_b = lengths_a[picks].sum(axis=1), lengths_b[picks].sum(axis=1)
+    usable = (words_a > 0) & (words_b > 0)
+    diffs = 100.0 * (
+        edits_b[picks].sum(axis=1)[usable] / words_b[usable]
+        - edits_a[picks].sum(axis=1)[usable] / words_a[usable]
     )
     tail = 100.0 * (1.0 - confidence) / 2.0
     low, high = np.percentile(diffs, [tail, 100.0 - tail])
 
-    total_words = lengths.sum()
-    wer_a = 100.0 * edits_a.sum() / total_words
-    wer_b = 100.0 * edits_b.sum() / total_words
+    wer_a = 100.0 * edits_a.sum() / lengths_a.sum()
+    wer_b = 100.0 * edits_b.sum() / lengths_b.sum()
     return BootstrapResult(
         float(wer_a), float(wer_b), float(wer_b - wer_a), float(low), float(high),
         resamples, "group" if groups is not None else "clip",

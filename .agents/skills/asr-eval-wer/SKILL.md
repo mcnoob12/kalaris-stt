@@ -21,4 +21,6 @@ description: Score ASR models and decide whether one beats another. Use whenever
 
 **A complete result states:** model and commit, dataset and clip count, language, normalization options, WER, CER, CI against the baseline, and machine. Label each number as measured, vendor-reported or estimated.
 
-**Don't compare across scorers.** Parakeet v3's 7-set average is 4.94 on the Bark card and 6.32 in the October 2025 leaderboard paper. Rescore baselines here instead.
+**Benchmarks** follow the Open ASR Leaderboard (`configs/benchmarks.yaml`). Hindi uses Monsoon hi-IN with OIWER, which `stt-eval score` applies automatically when a manifest has lattices. The scorer normalizes text itself.
+
+**Don't compare across scorers or set mixes.** Parakeet v3's English average is 4.94 on the Bark card, 6.32 in the October 2025 leaderboard paper and 7.04 on today's leaderboard. Compare only on the same sets and metric. `reports/leaderboard_snapshot.md` has the current standings.

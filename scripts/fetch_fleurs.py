@@ -10,7 +10,7 @@ import pyarrow.parquet as pq
 import soundfile
 from huggingface_hub import hf_hub_download
 
-from stt_eval.manifest import write_jsonl
+from stt_eval.manifest import relative_to_repo, write_jsonl
 
 
 def main() -> None:
@@ -42,7 +42,7 @@ def main() -> None:
         soundfile.write(path, samples, rate, format="FLAC")
         rows.append({
             "id": f"fleurs-{args.config}-{args.split}-{index:05d}",
-            "audio_filepath": str(path),
+            "audio_filepath": relative_to_repo(path),
             "text": record["raw_transcription"],
             "duration": len(samples) / rate,
             "language": args.language,

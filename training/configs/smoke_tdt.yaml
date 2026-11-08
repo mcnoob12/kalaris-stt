@@ -1,0 +1,41 @@
+# TDT pipeline test for a CUDA GPU with at least 4 GB of VRAM, such as the
+# RTX 3050 Ti machine or a free Kaggle GPU. Its weights are thrown away.
+# Run prepare_data.py and train_tokenizer.py with smoke.yaml's data first.
+# Gate: `full` overfits these clips to near-zero WER on the real TDT loss.
+name: smoke
+sources: []
+
+base_model: nvidia/parakeet-tdt_ctc-110m
+tokenizer_dir: models/tokenizers/smoke
+train_manifest: data/training/smoke/train.json
+dev_manifest: data/training/smoke/train.json   # Overfitting on purpose, so train and dev match.
+output_dir: models/smoke_tdt
+accelerator: gpu
+precision: 16-mixed
+seed: 0
+spec_augment: false
+
+data:
+  batch_size: 2
+  num_workers: 2
+  max_duration: 12.0
+  accumulate: 2
+
+collapse_guard:
+  wer_limit: 1000   # Off: early WER is high when overfitting from a random head.
+  patience: 1
+
+stages:
+  head:
+    lr: 0.001
+    max_steps: 100
+    checkpoint_every: 100
+    validate_every_epochs: 5
+    log_every: 10
+  full:
+    lr: 0.0005
+    layer_decay: 1.0
+    max_steps: 800
+    checkpoint_every: 800
+    validate_every_epochs: 10
+    log_every: 20
