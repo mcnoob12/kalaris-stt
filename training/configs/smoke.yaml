@@ -1,0 +1,59 @@
+# Pipeline test that runs on a Mac or CPU. Its weights are thrown away.
+# Gate: `full` overfits these clips to near-zero WER. If it can't, the pipeline is
+# broken and no GPU money should be spent.
+#
+# NeMo can only compute the TDT loss on CUDA, so this uses a small RNNT model.
+# It tests everything except the TDT loss. smoke_tdt.yaml covers that on a GPU.
+name: smoke
+sources:
+  - name: fleurs_hi_validation
+    registry: FLEURS
+    repo: google/fleurs
+    config: hi_in
+    split: validation
+    text_column: raw_transcription
+    language: hi
+    license: CC-BY-4.0
+    max_hours: 0.01
+
+limits:
+  min_seconds: 1.0
+  max_seconds: 7.0
+  min_chars_per_second: 2
+  max_chars_per_second: 40
+
+base_model: stt_en_conformer_transducer_small
+tokenizer_dir: models/tokenizers/smoke
+train_manifest: data/training/smoke/train.json
+dev_manifest: data/training/smoke/train.json   # Overfitting on purpose, so train and dev match.
+output_dir: models/smoke
+accelerator: cpu
+precision: 32-true
+seed: 0
+spec_augment: false
+
+data:
+  batch_size: 4
+  num_workers: 0
+  max_duration: 7.0
+
+collapse_guard:
+  wer_limit: 1000   # Off: early WER is high when overfitting from a random head.
+  patience: 1
+
+stages:
+  head:
+    lr: 0.001
+    min_lr: 0.001     # Constant, so the rate can't decay away during a short test.
+    max_steps: 30
+    checkpoint_every: 30
+    validate_every_epochs: 10
+    log_every: 10
+  full:
+    lr: 0.001
+    min_lr: 0.001
+    layer_decay: 1.0
+    max_steps: 600
+    checkpoint_every: 600
+    validate_every_epochs: 25
+    log_every: 25

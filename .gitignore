@@ -8,3 +8,6 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 runs_baselines.log
+.venv-train/
+autoresearch/results.tsv
+autoresearch/run.log

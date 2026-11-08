@@ -15,7 +15,7 @@ from .bench import BenchResult, peak_rss_bytes
 from .leakage import check_leakage
 from .manifest import read_jsonl, read_manifest, write_jsonl
 from .normalize import normalize, switching_level, to_script_insensitive
-from .score import char_errors, paired_bootstrap, total, word_errors
+from .score import char_errors, oiwer_errors, paired_bootstrap, total, word_errors
 
 
 def _options(args: argparse.Namespace) -> dict:
@@ -86,6 +86,20 @@ def command_score(args: argparse.Namespace) -> int:
     pairs = _paired(rows, args.hypotheses)
     options = _options(args)
 
+    if any("lattice" in row for row, _ in pairs):
+        if not all("lattice" in row for row, _ in pairs):
+            raise SystemExit("Manifest mixes clips with and without lattices")
+        result = total([oiwer_errors(hypothesis, row["lattice"]) for row, hypothesis in pairs])
+        print(json.dumps({
+            "manifest": args.manifest,
+            "hypotheses": args.hypotheses,
+            "language": args.language,
+            "metric": "oiwer",
+            "clips": len(pairs),
+            "wer": result.as_dict(),
+        }, indent=2, ensure_ascii=False))
+        return 0
+
     word, char, loose = [], [], []
     by_level: dict[str, list] = defaultdict(list)
     for row, hypothesis in pairs:
@@ -122,13 +136,15 @@ def command_compare(args: argparse.Namespace) -> int:
 
     def errors_for(path: str) -> list:
         return [
-            word_errors(normalize(row["text"], args.language, **options), normalize(text, args.language, **options))
+            oiwer_errors(text, row["lattice"]) if "lattice" in row
+            else word_errors(normalize(row["text"], args.language, **options), normalize(text, args.language, **options))
             for row, text in _paired(rows, path)
         ]
 
     has_speakers = all(row.get("speaker") for row in rows)
     groups = [f"{row['dataset']}:{row['speaker']}" for row in rows] if has_speakers else None
-    result = paired_bootstrap(errors_for(args.a), errors_for(args.b), groups=groups, seed=args.seed)
+    lattice = any("lattice" in row for row in rows)
+    result = paired_bootstrap(errors_for(args.a), errors_for(args.b), groups=groups, seed=args.seed, lattice=lattice)
     print(json.dumps({"a": args.a, "b": args.b, "language": args.language, **result.as_dict()}, indent=2))
     return 0
 

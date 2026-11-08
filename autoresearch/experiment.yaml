@@ -1,0 +1,13 @@
+# The only file the autoresearch agent edits. See program.md.
+# Every key must be on the allowlist in trial.py, or the trial refuses to run.
+stages:
+  full:
+    lr: 0.001
+    min_lr: 0.001
+    layer_decay: 1.0
+    weight_decay: 0.001
+    warmup_steps: 0
+spec_augment: false
+data:
+  batch_size: 4
+  accumulate: 1

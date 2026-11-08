@@ -22,8 +22,8 @@ def load_backend(name: str, model: str, language: str | None = None) -> Backend:
         from .indicconformer_onnx_backend import IndicConformerOnnx
 
         return IndicConformerOnnx(model, language)
-    if name == "fluidaudio-coreml":
-        from .fluidaudio_backend import FluidAudioCoreML
+    if name == "nemo":
+        from .nemo_backend import NemoBackend
 
-        return FluidAudioCoreML(model)
+        return NemoBackend(model)
     raise ValueError(f"Unknown backend: {name}")

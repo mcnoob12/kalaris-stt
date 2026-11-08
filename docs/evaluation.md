@@ -1,35 +1,38 @@
 # Evaluation sets
 
-Phase 0 uses two public test sets, chosen because they're open and small enough for this Mac's disk. They can show that the harness works, but they can't support a SOTA claim.
+Our benchmarks now follow the Hugging Face Open ASR Leaderboard, so our numbers can sit beside its table. [`configs/benchmarks.yaml`](../configs/benchmarks.yaml) lists them, and [`reports/leaderboard_snapshot.md`](../reports/leaderboard_snapshot.md) holds the standings.
 
-| Language | Set | Clips | Audio | Source | Status |
+| Language | Benchmark | Metric | Size | Access | Status |
 |---|---|---|---|---|---|
-| English | LibriSpeech test-clean | 2,620 | 5.40 hours | [OpenSLR](https://www.openslr.org/12) | In use |
-| Hindi | FLEURS `hi_in` test | 418 | 1.34 hours | [google/fleurs](https://huggingface.co/datasets/google/fleurs) | In use |
-| Hinglish | None | | | | **Blocked** |
+| Hindi | [Monsoon hi-IN](https://huggingface.co/datasets/VoiceArena/MonsoonASR-Open-ASR-leaderboard-hi-IN) | OIWER | 753 clips, 1.33 hours, conversational | Open | **Primary, in use** |
+| Indian English | [Monsoon en-IN](https://huggingface.co/datasets/VoiceArena/MonsoonASR-Open-ASR-leaderboard-en-IN) | WER | 5.62 hours | Open | Configured, not fetched |
+| English | [Leaderboard average](https://huggingface.co/datasets/hf-audio/open-asr-leaderboard) | WER | Six more sets | Open | Configured, not fetched (disk) |
+| English and Hindi | LibriSpeech test-clean and FLEURS Hindi | WER | 2,620 and 418 clips, read speech | Open | Secondary checks |
+| Hindi | Lahaja | WER | 12.5 hours, 132 speakers | Gated | Needs terms accepted |
+| Hinglish | HiACC (on Zenodo, not Hugging Face) | WER | 5.24 hours, 44 speakers | Open, non-commercial | Evaluation only, not fetched |
 
-## Limits of these sets
+## Why Monsoon
 
-- **LibriSpeech** is clean read speech, and only one of the seven English sets behind the Bark comparison.
-- **FLEURS Hindi** is read speech, so it says little about conversational or noisy Hindi. It has no speaker IDs, so comparisons resample by clip and intervals may be too narrow. We also don't know whether any baseline model trained on it, which could flatter that model.
+- It's real phone audio of spontaneous speech from 468 speakers, rather than read speech.
+- It's what the leaderboard's Hindi column ranks.
+- Its answer key accepts spelling variants, including Latin spellings of Hindi and loanwords. A model writing `improve` or `इंप्रूव` is correct either way, which suits a code-switching model.
 
-## What a SOTA claim needs
+## OIWER
 
-| Claim | Sets needed | What's blocking it |
-|---|---|---|
-| English against Bark's 4.29 and 4.94 | LibriSpeech test-clean and test-other, AMI, Earnings-22, GigaSpeech, SPGISpeech, VoxPopuli | Disk space and download work |
-| Hindi | IndicVoices and Kathbath Hindi, plus Vistaar's Hindi sets | A person must accept the gated terms; Vistaar's terms are unconfirmed |
-| Hinglish | HiACC, MUCS-2021 or our own collection | Original sources and licenses not found |
+`stt-eval score` uses the official `voi-oiwer` scorer automatically when a manifest has lattices. The scorer normalizes text itself, and the corpus rate is total edits over total reference words.
 
-## Published numbers
+## Limits
 
-Published numbers are context only, because each maker scores differently. Parakeet v3's seven-set average is 4.94 on the Bark card and 6.32 in the October 2025 leaderboard paper. Any comparison we publish must come from rescoring baselines with this repo.
+- **The public Hindi set is small.** At 1.33 hours, a small lead may not be significant, and the private set (4.47 hours) is only scored by the maintainers after submission.
+- **The leaderboard's RTFx runs on an H200 GPU.** It doesn't measure on-device speed, so edge claims need our own phone benchmarks.
+- **Hindi and code-switching overlap only partly.** Monsoon has some English loanwords, but it doesn't measure heavy Hinglish. HiACC is the only real test we found, and it's small.
+- **Whether a training set overlaps Monsoon is unknown.** Check speakers and transcripts with `stt-eval leakage` before claiming a score.
 
-## Rules for using test sets
+## Rules
 
 - Agents see aggregate test scores only, never per-clip results. `stt-eval worst` refuses test manifests.
-- Tuning decisions use dev sets, and **no dev sets exist yet**. They arrive with the Phase 1 data work.
-- A test run for a candidate model needs human approval.
-- A leakage check runs before any score from a model we trained is reported.
+- `training/prepare_data.py` refuses test splits and anything in `configs/benchmarks.yaml`.
+- Tuning decisions use speaker-disjoint dev sets, which `prepare_data.py` builds.
+- Published comparisons must use the same set and metric, because set mixes shift averages. Parakeet v3's English average is 4.94 on the Bark card, 6.32 in the October 2025 paper and 7.04 on today's leaderboard.
 
-The registry in [`configs/datasets.yaml`](../configs/datasets.yaml) tracks every dataset and model with its license status. Only a person can mark a license `confirmed`, and none are confirmed yet.
+[`configs/datasets.yaml`](../configs/datasets.yaml) tracks every dataset and model with its license status. Only a person can mark a license `confirmed`, and none are confirmed yet.

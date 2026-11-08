@@ -8,6 +8,8 @@ dependencies = [
     "pyyaml>=6",
     "soundfile>=0.12",
     "whisper-normalizer>=0.1",
+    "voi-oiwer>=0.1.4",
+    "pyarrow>=15",
 ]
 
 [project.optional-dependencies]

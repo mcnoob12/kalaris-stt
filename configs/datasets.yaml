@@ -57,23 +57,40 @@ datasets:
     use: [train]
     notes: Crowdsourced, so transcripts need auditing.
 
-  # Wave 1: Hinglish. No usable set has been confirmed yet. This is the top data risk.
+  # Wave 1: Hinglish. No data cleared for commercial training has been found yet.
+  # This is the top data risk.
   - name: HiACC
     languages: [hinglish]
-    source: unknown
-    license: unknown
-    status: secondary
-    access: unknown
-    use: [train, dev, test]
-    notes: Found only through community model pages. Find the original source first.
-  - name: MUCS-2021
+    source: https://doi.org/10.5281/zenodo.15551669
+    license: CC-BY-NC-4.0
+    status: listed
+    access: open
+    use: [test]
+    notes: Real code-switched speech, 5.24 hours and 44 speakers. Non-commercial, so evaluation only.
+  - name: sonexis hinglish conversations
     languages: [hinglish]
-    source: unknown
-    license: unknown
+    source: https://huggingface.co/datasets/sonexis-ai/hinglish-code-switched-conversations-v1
+    license: CC-BY-NC-4.0
+    status: excluded
+    access: gated
+    use: []
+    notes: Non-commercial sample with undisclosed provenance.
+  - name: addyo07 noisy hinglish
+    languages: [hinglish]
+    source: https://huggingface.co/datasets/addyo07/noisy-hinglish-asr
+    license: Apache-2.0 on the tag
     status: secondary
     access: unknown
-    use: [train, dev, test]
-    notes: Found only through community model pages. Find the original source first.
+    use: []
+    notes: Provenance unknown. Don't use it until its sources are traced.
+  - name: Hinglish training data
+    languages: [hinglish]
+    source: TBD
+    license: TBD
+    status: secondary
+    access: unknown
+    use: [train]
+    notes: Placeholder. Likely needs licensing or our own collection.
 
   # Wave 1: English
   - name: LibriSpeech test-clean
@@ -83,6 +100,46 @@ datasets:
     status: listed
     access: open
     use: [test]
+
+  - name: LibriSpeech train
+    languages: [en]
+    source: https://huggingface.co/datasets/openslr/librispeech_asr
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [train]
+
+  # Benchmarks. See configs/benchmarks.yaml. Never train on these.
+  - name: Monsoon hi-IN
+    languages: [hi]
+    source: https://huggingface.co/datasets/VoiceArena/MonsoonASR-Open-ASR-leaderboard-hi-IN
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [test]
+  - name: Monsoon en-IN
+    languages: [en]
+    source: https://huggingface.co/datasets/VoiceArena/MonsoonASR-Open-ASR-leaderboard-en-IN
+    license: CC-BY-4.0
+    status: listed
+    access: open
+    use: [test]
+  - name: Lahaja
+    languages: [hi]
+    source: https://huggingface.co/datasets/ai4bharat/Lahaja
+    license: CC-BY-4.0 in the card text, MIT in the tag
+    status: secondary
+    access: gated
+    use: [test]
+    notes: Multi-accent Hindi, 12.5 hours and 132 speakers.
+  - name: Vaani
+    languages: [hi, multi]
+    source: https://huggingface.co/datasets/ARTPARK-IISc/Vaani
+    license: CC-BY-4.0
+    status: listed
+    access: gated
+    use: [train]
+    notes: Not yet audited. Check how much of it has transcripts.
 
   # Excluded
   - name: Krutrim IndicST

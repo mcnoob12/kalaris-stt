@@ -1,0 +1,102 @@
+# Wave 1 flagship: Hindi, Hinglish and English.
+#
+# Before this runs:
+# - A person must accept each gated dataset's terms and run `hf auth login`.
+# - A person must set `status: confirmed` in configs/datasets.yaml.
+# - Column names marked VERIFY can't be read until access is granted.
+# Learning rates and step counts below are starting points, not tuned values.
+name: wave1
+sources:
+  - name: indicvoices_hi
+    registry: IndicVoices
+    repo: ai4bharat/IndicVoices
+    config: hindi            # VERIFY
+    split: train
+    text_column: text        # VERIFY
+    speaker_column: speaker_id   # VERIFY
+    language: hi
+    license: CC-BY-4.0
+    dev_fraction: 0.02
+  - name: kathbath_hi
+    registry: Kathbath
+    repo: ai4bharat/Kathbath
+    config: hindi            # VERIFY
+    split: train
+    text_column: text        # VERIFY
+    speaker_column: speaker_id   # VERIFY
+    language: hi
+    license: CC-BY-4.0
+    dev_fraction: 0.02
+  - name: shrutilipi_hi
+    registry: Shrutilipi
+    repo: ai4bharat/Shrutilipi
+    config: hindi            # VERIFY
+    split: train
+    text_column: text        # VERIFY
+    language: hi
+    license: CC-BY-4.0
+    max_hours: 500           # Broadcast speech, so it's capped to keep it from dominating.
+  - name: librispeech_en
+    registry: LibriSpeech train
+    repo: openslr/librispeech_asr
+    config: clean
+    split: train.100
+    text_column: text
+    speaker_column: speaker_id
+    language: en
+    license: CC-BY-4.0
+    dev_fraction: 0.02
+
+  # Disabled until there's Hinglish data we may train on commercially.
+  - name: hinglish_real
+    registry: Hinglish training data
+    enabled: false
+    repo: TBD
+    split: train
+    text_column: text
+    language: hinglish
+    license: TBD
+    repeat: 3                # Oversample scarce, real code-switched speech.
+
+limits:
+  min_seconds: 0.5
+  max_seconds: 20.0
+  min_chars_per_second: 2
+  max_chars_per_second: 40
+
+base_model: nvidia/parakeet-tdt-0.6b-v3   # Phase 2 bake-off may change this.
+tokenizer_dir: models/tokenizers/wave1
+train_manifest: data/training/wave1/train.json
+dev_manifest: data/training/wave1/dev_hi.json
+output_dir: models/wave1
+accelerator: gpu
+precision: bf16-mixed
+seed: 0
+spec_augment: true
+
+data:
+  batch_size: 16      # For about 24 GB of VRAM. Measure on the first rental.
+  num_workers: 8
+  max_duration: 20.0
+  accumulate: 2
+
+collapse_guard:
+  wer_limit: 100
+  patience: 4
+
+stages:
+  head:
+    lr: 0.0005
+    max_steps: 20000
+    warmup_steps: 500
+    checkpoint_every: 1000
+    validate_every_epochs: 1
+    log_every: 50
+  full:
+    lr: 0.00005
+    layer_decay: 0.95
+    max_steps: 60000
+    warmup_steps: 500
+    checkpoint_every: 1000
+    validate_every_epochs: 1
+    log_every: 50

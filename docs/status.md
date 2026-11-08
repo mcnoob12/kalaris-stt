@@ -1,49 +1,51 @@
 # Project status
 
-Phase 0 is in progress as of 2026-11-07. No model has been trained, and baseline scores aren't in yet.
+As of 2026-11-07, the baselines are done and the training stack is built. **Real training is blocked on data access, license review, a GPU test and a budget, all of which need a person.** See [Can we be SOTA?](sota.md) for where this can win.
 
-## Phase 0 progress
+## What's been tested
 
-| Item | State | How it was checked |
+| Item | State | Evidence |
 |---|---|---|
-| Strategy document | Done | Published as a [doc](https://claude.ai/artifact/6XuzBJBNuZJofz7BxF1aC9) |
-| Scoring, normalization, leakage checks | Done | Unit tests |
-| Benchmark code and four backends | Written, not yet proven | Their first real runs are the baselines |
-| Core ML adapter | **Not built** | The FluidAudio CLI was looked at, but not built or run |
-| 12 agent skills and `AGENTS.md` | Written | Format tests pass and Pi lists all 12 |
-| Skills run through Pi | **Not tested** | Pi's Radius account has a $0.00 balance |
-| OpenEnv environment | Skeleton done, stub evaluator | Unit tests, `openenv validate` on files and server, one live episode |
-| Baseline runs | **Running** | Results land in `runs/` |
-| Baseline report | **Pending results** | See [`reports/baseline.md`](../reports/baseline.md) |
-| Reproducing a published baseline | **Pending results** | Parakeet v3 on LibriSpeech test-clean |
-
-The Docker image for the environment hasn't been built, because Docker isn't installed on this Mac. The NeMo training recipe is a design and has never been run.
+| Hindi scoring | **Works** | Whisper turbo scores 41.69, against the leaderboard's 41.55 |
+| Baselines | **Done** | [`reports/baseline.md`](../reports/baseline.md) |
+| Benchmarks from Hugging Face | **Works** | Monsoon hi-IN fetched and scored |
+| Data prep, tokenizer, head and full stages | **Works on RNNT** | A small model overfits 7 clips to 0.00% WER on this Mac |
+| TDT training | **Not tested** | NeMo requires CUDA, so it needs the 3050 Ti or Kaggle |
+| TDT loss fix | **Partly tested** | Log shows the wrong loss before the fix and TDT after it, but no TDT training step has run |
+| `training/configs/wave1.yaml` | **Never run** | Needs gated data and a GPU; column names are unverified |
+| Autoresearch loop | **Written, not run** | Unit tests cover the allowlist and test-data refusal. No trial has run end to end yet. |
+| OpenEnv quantization environment | Skeleton, stub evaluator | Unit tests, `openenv validate`, one live episode |
+| Skills in Pi | Pi lists them all | Not run through Pi, because its Radius account has a $0.00 balance |
+| Core ML | **Not built** | Backend entry removed until an adapter exists |
 
 ## Known issues
 
 | Issue | Effect | Plan |
 |---|---|---|
-| `fluidaudio-coreml` has no adapter file | Selecting it crashes | Build it or remove the entry after the baselines |
-| Manifests use absolute paths | They won't work on the M4 or a rented GPU without regenerating | Switch to repo-relative paths after the baselines |
-| FLEURS has no speaker IDs | Hindi comparisons resample by clip, so intervals may be too narrow | Don't use FLEURS alone for a promotion decision |
-| The IndicConformer repack is CTC only | Its score may understate the official model | Rerun with the official model once its terms are accepted |
-| Baselines run on an M1 Pro | Speed numbers don't apply to the base M4 | Rerun on the M4 |
-| Disk is 97% full, with 15 GB free mid-run | Limits which datasets fit, and the baseline run stops under 10 GB free | Free space or use external storage before adding sets |
+| Parakeet on LibriSpeech is 0.47 above published | MLX English scores can't be compared with published NeMo ones | Test NeMo on a GPU machine |
+| The IndicConformer repack is CTC only | Its 11.06 may understate the model | Rerun the official model once its terms are accepted |
+| Most baseline speeds shared the machine | Speeds are rough | Rerun alone, and on the base M4 |
+| FLEURS has no speaker IDs | Its intervals may be too narrow | Treat it as a secondary check |
+| Disk is about 97% full | Blocks more datasets and NeMo Parakeet here | Free space, or use the GPU machine |
+| No Hinglish data for commercial training | Hinglish can't be trained yet | License or collect data |
 
-## What needs a person
+## What needs a person, in order
 
-- [ ] Accept gated terms on Hugging Face for IndicVoices, Kathbath, Shrutilipi and official IndicConformer
-- [ ] Review licenses and set `status: confirmed` in `configs/datasets.yaml`
-- [ ] Find the original sources for HiACC and MUCS-2021, or budget for our own Hinglish data
-- [ ] Decide on a GPU budget, or apply for IndiaAI compute, before Phase 3
+- [ ] **Run the TDT smoke test** on the RTX 3050 Ti machine or Kaggle, using the commands in [`training/README.md`](../training/README.md)
+- [ ] **Run `hf auth login`** and accept terms for IndicVoices, Kathbath, Shrutilipi, Vaani, Lahaja and official IndicConformer
+- [ ] **Review licenses** and set `status: confirmed` in `configs/datasets.yaml`
+- [ ] **Approve a GPU budget**, or apply for IndiaAI compute
+- [ ] **Decide how to get Hinglish data**: license it or collect it
 - [ ] Choose a reference mid-range Android phone
-- [ ] Add Radius credits if you want the skills tested through Pi
-- [ ] Clear Bark's license for internal benchmarking, or keep using its published numbers
-- [ ] Confirm that "pi harness" means the Pi coding agent, not a Raspberry Pi
+- [ ] Add Radius credits if you want agents running through Pi
+- [ ] Decide whether Bark can be benchmarked internally
 
-## Next steps
+"pi harness" is confirmed to mean the Pi coding agent.
 
-1. Finish the baselines, write the report and check the Parakeet result against published numbers.
-2. Fix the manifest paths and resolve the Core ML adapter.
-3. Rerun the speed baselines on the base M4.
-4. Start Phase 1: Hindi and Hinglish data audit, tokenizer and a smoke test.
+## Next steps once unblocked
+
+1. Fill in the `VERIFY` columns in `training/configs/wave1.yaml`, and audit the data.
+2. Run the Phase 2 bake-off: Parakeet v3 against IndicConformer on Hindi dev data.
+3. Use autoresearch to tune settings on short trials, within agreed limits.
+4. Train the flagship, then score it on Monsoon after a leakage check and human approval.
+5. Run the quantization search with a real evaluator.

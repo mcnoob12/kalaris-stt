@@ -16,7 +16,8 @@ A manifest is a JSONL file with one clip per line, checked by `stt_eval/manifest
 | Field | Meaning |
 |---|---|
 | `id` | Unique clip ID |
-| `audio_filepath` | Path to the audio; currently absolute (see [known issues](status.md#known-issues)) |
+| `audio_filepath` | Path to the audio, relative to the repo in committed manifests |
+| `lattice` | Optional accepted spellings per word; switches scoring to OIWER |
 | `text` | Reference transcript |
 | `duration` | Seconds |
 | `language` | `en`, `hi` and so on |
@@ -41,7 +42,8 @@ Use the commands from `.venv/bin/`, or call them as `.venv/bin/python -m stt_eva
 - **CER** ignores spaces.
 - **Missing clips fail the run,** because dropping hard clips would flatter a model.
 - **English** uses the Whisper normalizer that leaderboards use.
-- **Hindi** uses NFC, removes zero-width characters and punctuation, and converts Devanagari digits. `--fold-nukta` and `--fold-nasal` are optional, and reports must state them.
+- **Hindi benchmarks with lattices** use the official OIWER scorer, which normalizes text itself.
+- **Hindi without lattices** uses NFC, removes zero-width characters and punctuation, and converts Devanagari digits. `--fold-nukta` and `--fold-nasal` are optional, and reports must state them.
 - **Hinglish** adds WER by switching level (`mono`, `word`, `phrase`, `sentence`) and script-insensitive WER.
 
 Script-insensitive WER compares consonant skeletons, so `computer` and `कंप्यूटर` match. Unrelated words can collide, which makes it a lower bound on real errors. Report it beside strict WER, never instead of it. Romanized Hinglish can't be detected by script and shows as `mono`.
@@ -71,11 +73,13 @@ Re-encoded audio with a different transcript and unknown speaker would still get
 
 | Backend | Runtime | Status |
 |---|---|---|
-| `parakeet-mlx` | MLX | Baseline running |
-| `sherpa-onnx-transducer` | ONNX on CPU | Queued, not yet run |
-| `indicconformer-onnx` | ONNX Runtime on CPU, CTC only | Queued, not yet run |
-| `whisper-mlx` | MLX | Queued, not yet run |
-| `fluidaudio-coreml` | Core ML | **Not built:** listed in the registry, but the adapter file doesn't exist |
+| `parakeet-mlx` | MLX | Baselines measured |
+| `sherpa-onnx-transducer` | ONNX on CPU | Baselines measured |
+| `indicconformer-onnx` | ONNX Runtime on CPU, CTC only | Baselines measured |
+| `whisper-mlx` | MLX | Baselines measured |
+| `nemo` | NeMo, from `.venv-train` | Written for fine-tuned models, not yet run |
+
+There's no Core ML backend yet. The entry was removed until an adapter exists.
 
 To add a backend, subclass `Backend` in `stt_eval/backends/base.py` with `load()` and `transcribe()`, then register it in `stt_eval/backends/__init__.py`. Import its runtime inside the methods so other backends don't need it installed.
 
@@ -93,7 +97,7 @@ The defaults are 200 MB and 10x realtime. Beating a target earns nothing extra.
 
 ## Agent skills
 
-`.agents/skills/` holds 12 skills in the Agent Skills format, and `AGENTS.md` holds the hard rules. Pi loads project files only after you trust them, either through its prompt or with `pi --approve`.
+`.agents/skills/` holds 13 skills in the Agent Skills format, and `AGENTS.md` holds the hard rules. Pi loads project files only after you trust them, either through its prompt or with `pi --approve`.
 
 | Area | Skills |
 |---|---|
@@ -101,6 +105,7 @@ The defaults are 200 MB and 10x realtime. Beating a target earns nothing extra.
 | Training | `nemo-transducer-finetune`, `rl-sequence-finetune`, `experiment-tracking` |
 | Evaluation | `asr-eval-wer`, `asr-error-analysis` |
 | Edge | `quant-search`, `edge-export`, `device-bench` |
+| Tuning | `autoresearch` |
 
 ## Tests
 

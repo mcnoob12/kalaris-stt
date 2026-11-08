@@ -93,3 +93,13 @@ def test_bootstrap_is_reproducible():
 def test_bootstrap_rejects_misaligned_clips():
     with pytest.raises(ValueError):
         paired_bootstrap([clip(1, length=10)], [clip(1, length=11)])
+
+
+def test_lattice_comparison_allows_different_reference_lengths():
+    # OIWER measures each model against the spellings it matched.
+    a = [clip(3, length=10)] * 200
+    b = [clip(1, length=11)] * 200
+    result = paired_bootstrap(a, b, lattice=True)
+    assert result.wer_a == pytest.approx(30.0)
+    assert result.wer_b == pytest.approx(100 / 11)
+    assert result.excludes_zero
