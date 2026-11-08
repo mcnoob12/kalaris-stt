@@ -38,6 +38,16 @@ This folder takes Hugging Face datasets to a fine-tuned `.nemo` model. See [`doc
 
 Resume an interrupted stage with `--resume models/wave1/checkpoints_full/last.ckpt`.
 
+## Train v0 on Kaggle
+
+v0 is the first real model, trained on open data the owner approved: MUCS Hinglish, FLEURS Hindi and LibriSpeech. [`docs/data-sources.md`](../docs/data-sources.md) describes each one.
+
+```bash
+.venv/bin/python training/kaggle/build_notebook.py
+```
+
+Upload `training/kaggle/kalaris_v0.ipynb` to Kaggle, set a GPU and turn Internet on, then Save & Run All. The `kaggle-gpu-training` skill covers resuming and limits.
+
 ## Smoke tests
 
 | Test | Where | Covers |

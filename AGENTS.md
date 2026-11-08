@@ -44,6 +44,7 @@ uv pip install -e '.[dev,mlx,env,onnx,data]'
 - `configs/benchmarks.yaml`: what we report against, following the Open ASR Leaderboard
 - `training/`: data preparation, tokenizer and fine-tuning. Read `training/README.md` first.
 - `autoresearch/`: agent loop for tuning experiments (`program.md`, `experiment.yaml`, `trial.py`)
+- `training/kaggle/`: notebook builder for free Kaggle GPU training
 - `envs/quant_env/`: OpenEnv quantization environment (its evaluator is a stub for now)
 - `docs/`: project status, decisions, evaluation sets and harness guide
 - `reports/`: reports, starting with `baseline.md`

@@ -78,6 +78,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("config")
     parser.add_argument("--smoke", action="store_true", help="Allow unreviewed licenses for a throwaway pipeline test")
+    parser.add_argument("--max-hours", type=float, help="Cap every source at this many hours, for quick checks")
+    parser.add_argument("--output-root", help="Where audio and manifests go (default: data/training in the repo)")
     args = parser.parse_args()
 
     config = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
@@ -87,7 +89,7 @@ def main() -> None:
     for source in sources:
         check_source_allowed(source, registry, benchmarks, smoke=args.smoke)
 
-    output = REPO_ROOT / "data" / "training" / config["name"]
+    output = Path(args.output_root or REPO_ROOT / "data" / "training") / config["name"]
     limits = config["limits"]
     train: list[dict] = []
     dev: dict[str, list[dict]] = defaultdict(list)
@@ -99,7 +101,7 @@ def main() -> None:
         rejected: Counter = Counter()
         seconds = 0.0
         kept = 0
-        max_seconds = source.get("max_hours", float("inf")) * 3600
+        max_seconds = min(source.get("max_hours", float("inf")), args.max_hours or float("inf")) * 3600
         text_column, speaker_column = source["text_column"], source.get("speaker_column")
 
         for record in iter_records(source["repo"], source.get("config", "default"), source["split"], audio_dir):
@@ -108,6 +110,8 @@ def main() -> None:
             samples = to_16k_mono(record["audio"]["bytes"])
             duration = len(samples) / SAMPLE_RATE
             text = clean_text(record[text_column] or "")
+            if source.get("lowercase"):
+                text = text.lower()
             reason = rejection_reason(text, duration, limits)
             if reason:
                 rejected[reason] += 1
@@ -127,7 +131,8 @@ def main() -> None:
                 "split": "train",
                 "license": source["license"],
             }
-            if is_dev_speaker(name, speaker, source.get("dev_fraction", 0.0)):
+            # `role: dev` sources are held out whole, such as an official validation split.
+            if source.get("role") == "dev" or is_dev_speaker(name, speaker, source.get("dev_fraction", 0.0)):
                 dev[source["language"]].append({**row, "split": "dev"})
             else:
                 # `repeat` oversamples scarce sources, such as real Hinglish.
@@ -139,6 +144,7 @@ def main() -> None:
     write_jsonl(output / "train.json", train)
     for language, rows in dev.items():
         write_jsonl(output / f"dev_{language}.json", rows)
+    write_jsonl(output / "dev.json", [row for rows in dev.values() for row in rows])
 
     summary = "\n".join(report + [f"train rows: {len(train)}", f"dev rows: { {k: len(v) for k, v in dev.items()} }"])
     (output / "report.txt").write_text(summary + "\n", encoding="utf-8")

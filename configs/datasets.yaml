@@ -44,9 +44,10 @@ datasets:
     languages: [hi, en, multi]
     source: https://huggingface.co/datasets/google/fleurs
     license: CC-BY-4.0
-    status: listed
+    status: confirmed
+    confirmed: Approved by the owner for training on 2026-11-08.
     access: open
-    use: [test]
+    use: [train, dev, test]
     notes: Phase 0 Hindi baseline. Small and read aloud, so it can't stand in for conversational Hindi.
   - name: Common Voice 17.0
     languages: [hi, en, multi]
@@ -83,6 +84,19 @@ datasets:
     access: unknown
     use: []
     notes: Provenance unknown. Don't use it until its sources are traced.
+  - name: MUCS 2021 Hinglish
+    languages: [hinglish]
+    source: https://www.openslr.org/104/
+    mirror: https://huggingface.co/datasets/dianavdavidson/MUCS-Hinglish
+    license: CC-BY-SA-4.0
+    status: confirmed
+    confirmed: Approved by the owner for training on 2026-11-08. Share-alike terms recorded for a later legal check.
+    access: open
+    use: [train, dev]
+    notes: >-
+      About 90 hours of technical spoken tutorials mixing Hindi and English (OpenSLR SLR104).
+      The Hugging Face mirror is tagged CC BY 4.0, but the original is CC BY-SA 4.0, which governs.
+      Its speaker_id is a tutorial ID, not a confirmed person.
   - name: Hinglish training data
     languages: [hinglish]
     source: TBD
@@ -105,9 +119,10 @@ datasets:
     languages: [en]
     source: https://huggingface.co/datasets/openslr/librispeech_asr
     license: CC-BY-4.0
-    status: listed
+    status: confirmed
+    confirmed: Approved by the owner for training on 2026-11-08.
     access: open
-    use: [train]
+    use: [train, dev]
 
   # Benchmarks. See configs/benchmarks.yaml. Never train on these.
   - name: Monsoon hi-IN
@@ -142,6 +157,31 @@ datasets:
     notes: Not yet audited. Check how much of it has transcripts.
 
   # Excluded
+  - name: nvidia Granary-v2
+    languages: [multi]
+    source: https://huggingface.co/datasets/nvidia/Granary-v2
+    license: OpenMDW-1.1 labels; source audio keeps its own license
+    status: listed
+    access: open
+    use: []
+    notes: Labels only. Its Hindi comes from Common Voice 26 and FLEURS, so it adds cleaner labels, not new audio.
+  - name: aman-hf indic_asr
+    languages: [hi]
+    source: https://huggingface.co/datasets/aman-hf/indic_asr
+    license: CC-BY-4.0 on the tag
+    status: excluded
+    access: open
+    use: []
+    notes: Aggregates about 10,000 hours with no named sources, so upstream licenses can't be checked.
+  - name: Kaggle Hindi speech datasets
+    languages: [hi]
+    source: https://www.kaggle.com/datasets
+    license: mixed
+    status: excluded
+    access: open
+    use: []
+    notes: Searched 2026-11-08. Results were non-commercial, re-uploads without provenance, or text only.
+
   - name: Krutrim IndicST
     languages: [multi]
     source: https://huggingface.co/datasets/krutrim-ai-labs/IndicST

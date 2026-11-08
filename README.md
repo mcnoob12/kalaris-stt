@@ -14,6 +14,7 @@ No production model has been trained here yet. Phase 0 measures the baselines fu
 | [Leaderboard snapshot](reports/leaderboard_snapshot.md) | Current public standings |
 | [Can we be SOTA?](docs/sota.md) | Where we can realistically win |
 | [Training guide](training/README.md) | From Hugging Face data to a fine-tuned model |
+| [Data and tools used](docs/data-sources.md) | Every dataset, model, tool and service, and why |
 | [Agent rules](AGENTS.md) | Hard rules for agents |
 | [Dataset and model registry](configs/datasets.yaml) | Sources and license status |
 | [Strategy document](https://claude.ai/artifact/6XuzBJBNuZJofz7BxF1aC9) | The full plan, with sources |

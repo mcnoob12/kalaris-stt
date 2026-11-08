@@ -13,6 +13,7 @@ EXPECTED = {
     "nemo-transducer-finetune", "rl-sequence-finetune", "experiment-tracking",
     "asr-eval-wer", "asr-error-analysis",
     "quant-search", "edge-export", "device-bench", "autoresearch",
+    "dataset-sourcing", "kaggle-gpu-training",
 }
 
 

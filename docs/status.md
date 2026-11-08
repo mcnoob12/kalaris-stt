@@ -12,6 +12,7 @@ As of 2026-11-07, the baselines are done and the training stack is built. **Real
 | Data prep, tokenizer, head and full stages | **Works on RNNT** | A small model overfits 7 clips to 0.00% WER on this Mac |
 | TDT training | **Not tested** | NeMo requires CUDA, so it needs the 3050 Ti or Kaggle |
 | TDT loss fix | **Partly tested** | Log shows the wrong loss before the fix and TDT after it, but no TDT training step has run |
+| v0 model (`training/configs/v0.yaml`) | **Ready to run on Kaggle** | Open data approved by the owner. The notebook builds and its code imports; it hasn't run on Kaggle yet. |
 | `training/configs/wave1.yaml` | **Never run** | Needs gated data and a GPU; column names are unverified |
 | Autoresearch loop | **Written, not run** | Unit tests cover the allowlist and test-data refusal. No trial has run end to end yet. |
 | OpenEnv quantization environment | Skeleton, stub evaluator | Unit tests, `openenv validate`, one live episode |
@@ -27,13 +28,13 @@ As of 2026-11-07, the baselines are done and the training stack is built. **Real
 | Most baseline speeds shared the machine | Speeds are rough | Rerun alone, and on the base M4 |
 | FLEURS has no speaker IDs | Its intervals may be too narrow | Treat it as a secondary check |
 | Disk is about 97% full | Blocks more datasets and NeMo Parakeet here | Free space, or use the GPU machine |
-| No Hinglish data for commercial training | Hinglish can't be trained yet | License or collect data |
+| Hinglish data is MUCS only: technical tutorials under share-alike terms | v0 may be weak on everyday Hinglish | License or collect conversational data |
 
 ## What needs a person, in order
 
-- [ ] **Run the TDT smoke test** on the RTX 3050 Ti machine or Kaggle, using the commands in [`training/README.md`](../training/README.md)
+- [ ] **Run the v0 notebook on Kaggle** (`training/kaggle/kalaris_v0.ipynb`). It's also the first real TDT test.
 - [ ] **Run `hf auth login`** and accept terms for IndicVoices, Kathbath, Shrutilipi, Vaani, Lahaja and official IndicConformer
-- [ ] **Review licenses** and set `status: confirmed` in `configs/datasets.yaml`
+- [ ] **Review the remaining licenses.** FLEURS, LibriSpeech and MUCS are confirmed; MUCS's share-alike terms still need a legal check before release.
 - [ ] **Approve a GPU budget**, or apply for IndiaAI compute
 - [ ] **Decide how to get Hinglish data**: license it or collect it
 - [ ] Choose a reference mid-range Android phone
